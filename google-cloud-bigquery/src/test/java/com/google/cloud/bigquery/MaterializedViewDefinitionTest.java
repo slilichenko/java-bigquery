@@ -28,6 +28,9 @@ public class MaterializedViewDefinitionTest {
   private static final Long LAST_REFRESH_TIME = 1580302008L;
   private static final Boolean ENABLE_REFRESH = false;
   private static final Long REFRESH_INTERVAL_MS = 60000L;
+
+  private static final String MAX_STALENESS = "INTERVAL 1 MINUTE";
+
   private static final Schema SCHEMA = Schema.of();
   private static final TimePartitioning TIME_PARTITIONING =
       TimePartitioning.of(TimePartitioning.Type.DAY, 42);
@@ -40,6 +43,7 @@ public class MaterializedViewDefinitionTest {
           .setLastRefreshTime(LAST_REFRESH_TIME)
           .setEnableRefresh(ENABLE_REFRESH)
           .setRefreshIntervalMs(REFRESH_INTERVAL_MS)
+          .setMaxStaleness(MAX_STALENESS)
           .setClustering(CLUSTERING)
           .setTimePartitioning(TIME_PARTITIONING)
           .build();
@@ -75,6 +79,7 @@ public class MaterializedViewDefinitionTest {
             .setLastRefreshTime(LAST_REFRESH_TIME)
             .setEnableRefresh(ENABLE_REFRESH)
             .setRefreshIntervalMs(REFRESH_INTERVAL_MS)
+            .setMaxStaleness(MAX_STALENESS)
             .setClustering(CLUSTERING)
             .setTimePartitioning(TIME_PARTITIONING)
             .build();
@@ -101,6 +106,7 @@ public class MaterializedViewDefinitionTest {
     assertEquals(expected.getLastRefreshTime(), actual.getLastRefreshTime());
     assertEquals(expected.getEnableRefresh(), actual.getEnableRefresh());
     assertEquals(expected.getRefreshIntervalMs(), actual.getRefreshIntervalMs());
+    assertEquals(expected.getMaxStaleness(), actual.getMaxStaleness());
     assertEquals(expected.getClustering(), actual.getClustering());
     assertEquals(expected.getTimePartitioning(), actual.getTimePartitioning());
     assertEquals(expected.toString(), actual.toString());

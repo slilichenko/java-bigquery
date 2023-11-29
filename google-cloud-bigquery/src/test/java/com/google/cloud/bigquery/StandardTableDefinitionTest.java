@@ -60,6 +60,9 @@ public class StandardTableDefinitionTest {
   private static final Long NUM_LONG_TERM_PHYSICAL_BYTES = 27L;
   private static final Long NUM_ROWS = 43L;
   private static final String LOCATION = "US";
+
+  private static final String MAX_STALENESS = "INTERVAL 1 MINUTE";
+
   private static final StreamingBuffer STREAMING_BUFFER = new StreamingBuffer(1L, 2L, 3L);
   private static final TimePartitioning TIME_PARTITIONING =
       TimePartitioning.of(TimePartitioning.Type.DAY, 42);
@@ -75,6 +78,7 @@ public class StandardTableDefinitionTest {
   private static final StandardTableDefinition TABLE_DEFINITION =
       StandardTableDefinition.newBuilder()
           .setLocation(LOCATION)
+          .setMaxStaleness(MAX_STALENESS)
           .setNumBytes(NUM_BYTES)
           .setNumRows(NUM_ROWS)
           .setNumLongTermBytes(NUM_LONG_TERM_BYTES)
@@ -113,6 +117,7 @@ public class StandardTableDefinitionTest {
     assertEquals(TableDefinition.Type.TABLE, TABLE_DEFINITION.getType());
     assertEquals(TABLE_SCHEMA, TABLE_DEFINITION.getSchema());
     assertEquals(LOCATION, TABLE_DEFINITION.getLocation());
+    assertEquals(MAX_STALENESS, TABLE_DEFINITION.getMaxStaleness());
     assertEquals(NUM_BYTES, TABLE_DEFINITION.getNumBytes());
     assertEquals(NUM_LONG_TERM_BYTES, TABLE_DEFINITION.getNumLongTermBytes());
     assertEquals(NUM_TIME_TRAVEL_PHYSICAL_BYTES, TABLE_DEFINITION.getNumTimeTravelPhysicalBytes());
@@ -221,6 +226,7 @@ public class StandardTableDefinitionTest {
     assertEquals(expected.getNumLongTermPhysicalBytes(), value.getNumLongTermPhysicalBytes());
     assertEquals(expected.getNumRows(), value.getNumRows());
     assertEquals(expected.getLocation(), value.getLocation());
+    assertEquals(expected.getMaxStaleness(), value.getMaxStaleness());
     assertEquals(expected.getStreamingBuffer(), value.getStreamingBuffer());
     assertEquals(expected.getType(), value.getType());
     assertEquals(expected.getTimePartitioning(), value.getTimePartitioning());

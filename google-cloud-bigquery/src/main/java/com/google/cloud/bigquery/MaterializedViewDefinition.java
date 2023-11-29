@@ -35,6 +35,12 @@ public abstract class MaterializedViewDefinition extends TableDefinition {
      */
     abstract Builder setLastRefreshTime(Long lastRefreshTime);
 
+    /**
+     * Sets the max staleness of data that could be returned when materizlized view is queried
+     * (formatted as Google SQL Interval type).
+     */
+    public abstract Builder setMaxStaleness(String query);
+
     /** Sets the query whose result is persisted. */
     public abstract Builder setQuery(String query);
 
@@ -86,6 +92,10 @@ public abstract class MaterializedViewDefinition extends TableDefinition {
    */
   @Nullable
   public abstract Long getLastRefreshTime();
+
+  /** Returns max stalness of this materialized view. */
+  @Nullable
+  public abstract String getMaxStaleness();
 
   /** Returns a query whose result is persisted. */
   @Nullable
@@ -146,6 +156,9 @@ public abstract class MaterializedViewDefinition extends TableDefinition {
     if (getRefreshIntervalMs() != null) {
       materializedViewDefinition.setRefreshIntervalMs(getRefreshIntervalMs());
     }
+    if (getMaxStaleness() != null) {
+      materializedViewDefinition.setMaxStaleness(getMaxStaleness());
+    }
     tablePb.setMaterializedView(materializedViewDefinition);
     if (getTimePartitioning() != null) {
       tablePb.setTimePartitioning(getTimePartitioning().toPb());
@@ -198,6 +211,10 @@ public abstract class MaterializedViewDefinition extends TableDefinition {
       if (materializedViewDefinition.getRefreshIntervalMs() != null) {
         builder.setRefreshIntervalMs(materializedViewDefinition.getRefreshIntervalMs());
       }
+      builder.setMaxStaleness(materializedViewDefinition.getMaxStaleness());
+      // if (materializedViewDefinition.getMaxStaleness() != null) {
+      //   builder.setMaxStaleness(materializedViewDefinition.getMaxStaleness());
+      // }
       if (tablePb.getTimePartitioning() != null) {
         builder.setTimePartitioning(TimePartitioning.fromPb(tablePb.getTimePartitioning()));
       }

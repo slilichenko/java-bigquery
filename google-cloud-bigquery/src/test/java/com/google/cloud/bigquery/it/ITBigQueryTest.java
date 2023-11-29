@@ -1750,6 +1750,53 @@ public class ITBigQueryTest {
   }
 
   @Test
+  public void testCreateAndGetTableWithMaxStaleness() {
+    // TODO(DNM): DO NOT MERGE. Add integration test here.
+
+    String tableName = "test_create_and_get_table_with_max_staleness";
+    TableId tableId = TableId.of(DATASET, tableName);
+    TimePartitioning partitioning = TimePartitioning.of(Type.DAY);
+    Clustering clustering =
+        Clustering.newBuilder().setFields(ImmutableList.of(STRING_FIELD_SCHEMA.getName())).build();
+    StandardTableDefinition tableDefinition =
+        StandardTableDefinition.newBuilder()
+            .setSchema(TABLE_SCHEMA)
+            .setTimePartitioning(partitioning)
+            .setClustering(clustering)
+            .setMaxStaleness("INTERVAL 1 MINUTE")
+            .build();
+    Table createdTable = bigquery.create(TableInfo.of(tableId, tableDefinition));
+    assertNotNull(createdTable);
+    assertEquals(DATASET, createdTable.getTableId().getDataset());
+    assertEquals(tableName, createdTable.getTableId().getTable());
+    Table remoteTable = bigquery.getTable(DATASET, tableName);
+    assertNotNull(remoteTable);
+    assertTrue(remoteTable.getDefinition() instanceof StandardTableDefinition);
+    assertEquals(createdTable.getTableId(), remoteTable.getTableId());
+    assertEquals(TableDefinition.Type.TABLE, remoteTable.getDefinition().getType());
+    assertEquals(TABLE_SCHEMA, remoteTable.getDefinition().getSchema());
+    assertNotNull(remoteTable.getCreationTime());
+    assertNotNull(remoteTable.getLastModifiedTime());
+    assertNotNull(remoteTable.<StandardTableDefinition>getDefinition().getNumBytes());
+    assertNotNull(remoteTable.<StandardTableDefinition>getDefinition().getNumLongTermBytes());
+    assertNotNull(remoteTable.<StandardTableDefinition>getDefinition().getNumTotalLogicalBytes());
+    assertNotNull(remoteTable.<StandardTableDefinition>getDefinition().getNumActiveLogicalBytes());
+    assertEquals(
+        "INTERVAL 1 MINUTE",
+        remoteTable.<StandardTableDefinition>getDefinition().getMaxStaleness());
+
+    assertNotNull(
+        remoteTable.<StandardTableDefinition>getDefinition().getNumLongTermLogicalBytes());
+    assertNotNull(remoteTable.<StandardTableDefinition>getDefinition().getNumRows());
+    assertNotNull(remoteTable.<StandardTableDefinition>getDefinition().getNumRows());
+
+    assertEquals(
+        partitioning, remoteTable.<StandardTableDefinition>getDefinition().getTimePartitioning());
+    assertEquals(clustering, remoteTable.<StandardTableDefinition>getDefinition().getClustering());
+    assertTrue(remoteTable.delete());
+  }
+
+  @Test
   public void testCreateExternalTable() throws InterruptedException {
     String tableName = "test_create_external_table";
     TableId tableId = TableId.of(DATASET, tableName);
@@ -1921,6 +1968,7 @@ public class ITBigQueryTest {
                 String.format(
                     "SELECT MAX(TimestampField) AS TimestampField,StringField, MAX(BooleanField) AS BooleanField FROM %s.%s.%s GROUP BY StringField",
                     PROJECT_ID, DATASET, TABLE_ID.getTable()))
+            .setMaxStaleness("INTERVAL 0 MINUTE")
             .build();
     TableInfo tableInfo = TableInfo.of(tableId, viewDefinition);
     Table createdTable = bigquery.create(tableInfo);
@@ -3756,6 +3804,7 @@ public class ITBigQueryTest {
 
   @Test
   public void testLocationFastSQLQueryWithJobId() throws InterruptedException {
+    // TODO(DNM): DO NOT MERGE. Example of Integration tests.
     DatasetInfo infoUK =
         DatasetInfo.newBuilder(UK_DATASET)
             .setDescription(DESCRIPTION)
@@ -3764,9 +3813,17 @@ public class ITBigQueryTest {
             .build();
     bigquery.create(infoUK);
 
-    TableDefinition tableDefinition = StandardTableDefinition.of(SIMPLE_SCHEMA);
+    // TableDefinition tableDefinition = StandardTableDefinition.of(SIMPLE_SCHEMA);
+    StandardTableDefinition tableDefinition =
+        StandardTableDefinition.newBuilder()
+            .setSchema(SIMPLE_SCHEMA)
+            .setMaxStaleness("INTERVAL 1 MINUTE")
+            .build();
+
     TableInfo tableInfo = TableInfo.newBuilder(TABLE_ID_FASTQUERY_UK, tableDefinition).build();
-    bigquery.create(tableInfo);
+    Table createdTable = bigquery.create(tableInfo);
+
+    assertEquals("CHUONGPH111", createdTable.<StandardTableDefinition>getDefinition().toString());
 
     String insert =
         "INSERT " + UK_DATASET + "." + TABLE_ID_FASTQUERY_UK.getTable() + " VALUES('Anna');";

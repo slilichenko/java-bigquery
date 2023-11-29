@@ -150,6 +150,8 @@ public abstract class StandardTableDefinition extends TableDefinition {
 
     public abstract Builder setLocation(String location);
 
+    public abstract Builder setMaxStaleness(String maxStaleness);
+
     public abstract Builder setStreamingBuffer(StreamingBuffer streamingBuffer);
 
     public abstract Builder setType(Type type);
@@ -271,6 +273,10 @@ public abstract class StandardTableDefinition extends TableDefinition {
   @Nullable
   public abstract String getLocation();
 
+  /** Returns the max staleness of the table. */
+  @Nullable
+  public abstract String getMaxStaleness();
+
   /**
    * Returns information on the table's streaming buffer if any exists. Returns {@code null} if no
    * streaming buffer exists.
@@ -346,6 +352,7 @@ public abstract class StandardTableDefinition extends TableDefinition {
     tablePb.setNumActivePhysicalBytes(getNumActivePhysicalBytes());
     tablePb.setNumLongTermPhysicalBytes(getNumLongTermPhysicalBytes());
     tablePb.setLocation(getLocation());
+    tablePb.setMaxStaleness(getMaxStaleness());
     if (getStreamingBuffer() != null) {
       tablePb.setStreamingBuffer(getStreamingBuffer().toPb());
     }
@@ -430,6 +437,10 @@ public abstract class StandardTableDefinition extends TableDefinition {
           BigLakeConfiguration.fromPb(tablePb.getBiglakeConfiguration()));
     }
 
-    return builder.setNumBytes(tablePb.getNumBytes()).setLocation(tablePb.getLocation()).build();
+    builder.setNumBytes(tablePb.getNumBytes());
+    builder.setLocation(tablePb.getLocation());
+    builder.setMaxStaleness(tablePb.getMaxStaleness());
+
+    return builder.build();
   }
 }
